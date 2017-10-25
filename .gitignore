@@ -1,0 +1,14 @@
+# the build information
+build/
+
+# the test files
+test/
+
+#the lib file
+lib/
+
+#the example bin file
+example/bin/
+
+# the json files
+*.json

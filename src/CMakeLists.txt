@@ -1,0 +1,8 @@
+include_directories(${LICON_HEADER_DIR} ../3rdparty/eigen3 ../3rdparty/wzp_cpp_lib/)
+aux_source_directory(./io SRC_LIST)
+aux_source_directory(./nn SRC_LIST)
+aux_source_directory(./optim SRC_LIST)
+aux_source_directory(./utils SRC_LIST)
+add_library(licon SHARED ${SRC_LIST})
+# add_library(licon_static STATIC ${SRC_LIST})
+# SET_TARGET_PROPERTIES(licon_static PROPERTIES OUTPUT_NAME "licon")
