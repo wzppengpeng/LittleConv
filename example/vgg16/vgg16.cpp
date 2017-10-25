@@ -8,7 +8,7 @@ using namespace wzp;
 
 nn::Model get_model() {
     auto model = nn::Squential::CreateSquential();
-    model->Add(Vgg11());
+    model->Add(Vgg());
     model->Add(nn::Softmax::CreateSoftmax());
     return model;
 }
@@ -18,10 +18,10 @@ void train() {
     std::string input_dir = wzp::Click::get("--input_dir");
     // the parameters
     int batch_size = 256;
-    int epoch_num = 100;
-    float lr = 5e-5;
-    float momentum = 0.9;
-    float weight_decay = 5e-4;
+    int epoch_num = 50;
+    float lr = 1e-4;
+    float weight_decay = 5e-5;
+
     int display = 50;
 
     // get model
@@ -32,7 +32,7 @@ void train() {
     auto cross_entropy_loss = nn::CrossEntropyLoss::CreateCrossEntropyLoss();
 
     // define the optimizer
-    auto optimizer = optim::Adam::CreateAdam(model->RegisterWeights(), lr, momentum, 0.999, weight_decay);
+    auto optimizer = optim::Adam::CreateAdam(model->RegisterWeights(), lr, 0.9, 0.999, weight_decay);
 
     io::Cifar10Dataset cifar10_train(input_dir, io::Cifar10Dataset::TRAIN);
     io::Cifar10Dataset cifar10_test(input_dir, io::Cifar10Dataset::TEST);
@@ -46,7 +46,7 @@ void train() {
     // train
     trainer->Train();
     // save model
-    io::Saver::Save("vgg16.liconmodel", model);
+    io::Saver::Save("vgg.liconmodel", model);
 }
 
 void test() {
@@ -56,8 +56,8 @@ void test() {
     model->set_phase(licon::Phase::TEST);
 
     // load model
-    io::Saver::Load("vgg16.liconmodel", &model);
-    wzp::log::info("vgg16 model loaded...");
+    io::Saver::Load("vgg.liconmodel", &model);
+    wzp::log::info("vgg model loaded...");
 
     io::Cifar10Dataset cifar10_test(input_dir, io::Cifar10Dataset::TEST);
     cifar10_test.Load();
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     // set up the env
     licon::EnvSetUp();
 
-    wzp::log::info("Run Cifar10 Quick...");
+    wzp::log::info("Run VGG Quick...");
 
     if(wzp::Click::get("--mode") == "train") {
         train();
