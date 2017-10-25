@@ -1,48 +1,38 @@
-/**
- * the example of cifar10 quick
- */
-
-#include "licon/licon.hpp"
+#include "vgg16.hpp"
 
 #include "config/click.hpp"
 
 using namespace std;
-using namespace licon;
+using namespace wzp;
+
 
 nn::Model get_model() {
-    auto block = nn::Squential::CreateSquential();
-    block->Add(nn::Conv::CreateConv(3, 32, 5, 1, 2));
-    block->Add(nn::MaxPool::CreateMaxPool(2));
-    block->Add(nn::Relu::CreateRelu());
-    block->Add(nn::Conv::CreateConv(32, 32, 5, 1, 2));
-    block->Add(nn::Relu::CreateRelu());
-    block->Add(nn::AvePool::CreateAvePool(2));
-    block->Add(nn::Conv::CreateConv(32, 64, 5, 1, 2));
-    block->Add(nn::Relu::CreateRelu());
-    block->Add(nn::AvePool::CreateAvePool(2));
-    block->Add(nn::Linear::CreateLinear(4 * 4 * 64, 64));
-    block->Add(nn::Linear::CreateLinear(64, 10));
-    block->Add(nn::Softmax::CreateSoftmax());
-    return block;
+    auto model = nn::Squential::CreateSquential();
+    model->Add(Vgg11());
+    model->Add(nn::Softmax::CreateSoftmax());
+    return model;
 }
+
 
 void train() {
     std::string input_dir = wzp::Click::get("--input_dir");
     // the parameters
     int batch_size = 256;
-    int epoch_num = 20;
-    float lr = 1e-4;
-    int display = 100;
+    int epoch_num = 200;
+    float lr = 1e-2;
+    float momentum = 0.9;
+    float weight_decay = 5e-4;
+    int display = 5;
 
     // get model
     auto model = get_model();
-    model->set_node_name("cifar10_vgg16");
+    model->set_node_name("Cifar10Vgg16");
 
      // define the loss
     auto cross_entropy_loss = nn::CrossEntropyLoss::CreateCrossEntropyLoss();
 
     // define the optimizer
-    auto optimizer = optim::Adam::CreateAdam(model->RegisterWeights(), lr);
+    auto optimizer = optim::SGD::CreateSGD(model->RegisterWeights(), lr, momentum, weight_decay);
 
     io::Cifar10Dataset cifar10_train(input_dir, io::Cifar10Dataset::TRAIN);
     io::Cifar10Dataset cifar10_test(input_dir, io::Cifar10Dataset::TEST);
@@ -56,9 +46,8 @@ void train() {
     // train
     trainer->Train();
     // save model
-    io::Saver::Save("cifar10_quick.liconmodel", model);
+    io::Saver::Save("vgg16.liconmodel", model);
 }
-
 
 void test() {
     std::string input_dir = wzp::Click::get("--input_dir");
@@ -67,15 +56,14 @@ void test() {
     model->set_phase(licon::Phase::TEST);
 
     // load model
-    io::Saver::Load("cifar10_quick.liconmodel", &model);
-    wzp::log::info("cifar10_quick model loaded...");
+    io::Saver::Load("vgg16.liconmodel", &model);
+    wzp::log::info("vgg16 model loaded...");
 
     io::Cifar10Dataset cifar10_test(input_dir, io::Cifar10Dataset::TEST);
     cifar10_test.Load();
     // eval
     wzp::log::info("The final accuracy is", utils::Accuracy::CreateAccuracy(model, cifar10_test)->Run());
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -95,3 +83,4 @@ int main(int argc, char *argv[])
     }
     return 0;
 }
+

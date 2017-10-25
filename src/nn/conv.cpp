@@ -1,5 +1,7 @@
 #include "licon/nn/node/conv.hpp"
 
+
+
 #include "licon/nn/init.hpp"
 
 
@@ -8,6 +10,8 @@
 #include "licon/utils/transformer.hpp"
 
 #include "function/help_function.hpp"
+
+#include "thread/parallel_algorithm.hpp"
 
 using namespace std;
 
@@ -19,6 +23,7 @@ namespace licon
 
 namespace nn
 {
+
 
 std::unordered_map<std::string, utils::ETensor<F>* > Conv::StateDict() {
     CHECK(m_node_name.empty() == false);
@@ -128,18 +133,11 @@ void Conv::ReshapeForward(const std::vector<utils::ETensor<F>* >& bottom) {
     // The im2col result buffer will only hold one image at a time to avoid
     // overly large memory usage. In the special case of 1x1 convolution
     // it goes lazily unused to save memory.
-    m_col_buffer_shape.clear();
-    m_col_buffer_shape.emplace_back(1);
-    m_col_buffer_shape.emplace_back(m_kernel_dim);
-    m_col_buffer_shape.emplace_back(m_output_shape[0]);
-    m_col_buffer_shape.emplace_back(m_output_shape[1]);
-    m_col_buffer.Reshape(m_col_buffer_shape);
     m_bottom_dim = m_bottom_data->count(1);
     m_top_dim = m_data.count(1);
     m_num_kernels_im2col = m_conv_in_channels * m_conv_out_spatial_dim; //3 * 2 * 2
     m_num_kernels_col2im = m_bottom_dim; // c* h * w
     m_out_spatial_dim = m_data.count(2);
-    // bias_multiplier_ need not
 }
 
 void Conv::ReshapeBackward(const std::vector<utils::ETensor<F>* >& top) {
@@ -153,12 +151,10 @@ void Conv::Forward(const std::vector<utils::ETensor<F>* >& bottom) {
     check_forward(bottom);
     ReshapeForward(bottom);
     // for each mini batch, only handle one image per conv
-    for(int i = 0; i < m_num; ++i) {
-        // weight gemm
+    wzp::ParallelRange(m_num, [this] (size_t i) {
         ForwardGemm(m_bottom_data->ptr(i), m_data.mutable_ptr(i));
-        // bias add
         ForwardBias(m_data.mutable_ptr(i), m_bias.mutable_ptr());
-    }
+    });
 }
 
 void Conv::Backward(const std::vector<utils::ETensor<F>* >& top) {
@@ -166,14 +162,12 @@ void Conv::Backward(const std::vector<utils::ETensor<F>* >& top) {
     check_backward(top);
     ReshapeBackward(top);
     auto& top_grad = *top[0];
-    for(int i = 0; i < m_num; ++i) {
-        // grad backward
+    // for(int i = 0; i < m_num; ++i) {
+    wzp::ParallelRange(m_num, [&top_grad, this] (int i) {
         BackwardGemm(top_grad.mutable_ptr(i), m_grad.mutable_ptr(i));
-        // weight grad backward
         WeightGemm(m_bottom_data->ptr(i), top_grad.mutable_ptr(i));
-        // bias grad backward
         BackwardBias(top_grad.mutable_ptr(i));
-    }
+    });
     m_bottom_data = nullptr;
 }
 
@@ -185,9 +179,9 @@ void Conv::ComputeOuputShape() {
 
 void Conv::ForwardGemm(const F* input, F* output) {
     // get the im2col
-    wzp::EMatrix<F> col_matrix(m_kernel_dim, m_conv_out_spatial_dim, m_col_buffer.mutable_ptr());
+    wzp::EMatrix<F> col_matrix(m_kernel_dim, m_conv_out_spatial_dim);
     conv_im2col(input, col_matrix);
-    auto res = (m_weights.ViewInPlace<wzp::EMatrix<F> >()) * col_matrix;
+    auto res = (m_weights.View<wzp::EMatrix<F> >()) * col_matrix;
     // copy the matrix data into output pointer
     utils::EMatrixArgs<F>::copy_to_pointer(res, output);
 }
@@ -202,29 +196,35 @@ void Conv::ForwardBias(F* output, F* bias) {
 void Conv::BackwardGemm(F* output, F* input) {
     // weight * output
     wzp::EMatrix<F> output_matrix(m_conv_out_channels, m_conv_out_spatial_dim, output);
-    auto grad_res = (m_weights.ViewInPlace<wzp::EMatrix<F>>().transpose()) * output_matrix; //27 * 4
-    // copy the grad res to col buffer
-    utils::EMatrixArgs<F>::copy_to_pointer(grad_res, m_col_buffer.mutable_ptr());
-    // col2im
-    wzp::EMatrix<F> col_matrix(m_kernel_dim, m_conv_out_spatial_dim, m_col_buffer.mutable_ptr());
-    conv_col2im(col_matrix, input);
+    auto grad_res = (m_weights.View<wzp::EMatrix<F>>().transpose()) * output_matrix; //27 * 4
+    conv_col2im(grad_res, input);
 }
 
 void Conv::WeightGemm(const F* input, F* output) {
     // get the im2col
-    wzp::EMatrix<F> col_matrix(m_kernel_dim, m_conv_out_spatial_dim, m_col_buffer.mutable_ptr());
+    wzp::EMatrix<F> col_matrix(m_kernel_dim, m_conv_out_spatial_dim);
     conv_im2col(input, col_matrix);
     wzp::EMatrix<F> output_matrix(m_conv_out_channels, m_conv_out_spatial_dim, output);
     // here use += to add grad, because only handle one image
     auto weight_grad = output_matrix * (col_matrix.transpose()); //3 * 27
-    // add the weight grad to the weight grad total
-    utils::EMatrixArgs<F>::add_to_pointer(weight_grad, m_weights_grad.mutable_ptr());
+    WriteWeight(&weight_grad);
 }
 
 void Conv::BackwardBias(F* input) {
     wzp::EMatrix<F> grad_matrix(m_conv_out_channels, m_conv_out_spatial_dim, input);
     auto bias_grad = grad_matrix * (wzp::EMatrix<F>(m_conv_out_spatial_dim, 1, 1.0)); //3 * 1
-    utils::EMatrixArgs<F>::add_to_pointer(bias_grad, m_bias_grad.mutable_ptr());
+    WriteBias(&bias_grad);
+}
+
+void Conv::WriteWeight(wzp::EMatrix<F>* mat) {
+    std::lock_guard<std::mutex> lk(m_mut);
+    // add the weight grad to the weight grad total
+    utils::EMatrixArgs<F>::add_to_pointer(*mat, m_weights_grad.mutable_ptr());
+}
+
+void Conv::WriteBias(wzp::EMatrix<F>* mat) {
+    std::lock_guard<std::mutex> lk(m_mut);
+    utils::EMatrixArgs<F>::add_to_pointer(*mat, m_bias_grad.mutable_ptr());
 }
 
 } //nn

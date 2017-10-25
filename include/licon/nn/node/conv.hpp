@@ -8,10 +8,20 @@
 
 #include <array>
 
+#include <mutex>
+
 #include "licon/nn/node/neuron.hpp"
 
 #include "licon/utils/im2col.hpp"
 
+
+namespace wzp
+{
+
+template<typename T>
+class EMatrix;
+
+} //wzp
 
 namespace licon
 {
@@ -78,8 +88,7 @@ protected:
     bool m_is_1x1;
 
     // the col buffer and bias multiplier
-    utils::ETensor<F> m_col_buffer;
-    // utils::ETensor<F> m_bias_multiplier;
+    //use multithread, so each thread will allocate new memory
 
     // the parameters
     utils::ETensor<F> m_weights; //input * output
@@ -119,6 +128,8 @@ private:
     int m_bottom_dim;
     int m_top_dim;
 
+    mutable std::mutex m_mut;
+
 protected:
     //functions
     // forward reshape the data
@@ -155,6 +166,9 @@ protected:
     void BackwardGemm(F* output, F* input);
     void WeightGemm(const F* input, F* output);
     void BackwardBias(F* input);
+
+    void WriteWeight(wzp::EMatrix<F>* mat);
+    void WriteBias(wzp::EMatrix<F>* mat);
 
 };
 
