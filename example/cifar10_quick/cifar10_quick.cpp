@@ -9,17 +9,20 @@
 using namespace std;
 using namespace licon;
 
+nn::NodePtr ConvBlock(int in_channel, int out_channel, bool use_ave = false) {
+    auto block = nn::Squential::CreateSquential();
+    block->Add(nn::Conv::CreateConv(in_channel, out_channel, 5, 1, 2));
+    if(use_ave) block->Add(nn::AvePool::CreateAvePool(2));
+    else block->Add(nn::MaxPool::CreateMaxPool(2));
+    block->Add(nn::Relu::CreateRelu());
+    return block;
+}
+
 nn::Model get_model() {
     auto block = nn::Squential::CreateSquential();
-    block->Add(nn::Conv::CreateConv(3, 32, 5, 1, 2));
-    block->Add(nn::MaxPool::CreateMaxPool(2));
-    block->Add(nn::Relu::CreateRelu());
-    block->Add(nn::Conv::CreateConv(32, 32, 5, 1, 2));
-    block->Add(nn::Relu::CreateRelu());
-    block->Add(nn::AvePool::CreateAvePool(2));
-    block->Add(nn::Conv::CreateConv(32, 64, 5, 1, 2));
-    block->Add(nn::Relu::CreateRelu());
-    block->Add(nn::AvePool::CreateAvePool(2));
+    block->Add(ConvBlock(3, 32));
+    block->Add(ConvBlock(32, 32, true));
+    block->Add(ConvBlock(32, 64, true));
     block->Add(nn::Linear::CreateLinear(4 * 4 * 64, 64));
     block->Add(nn::Linear::CreateLinear(64, 10));
     block->Add(nn::Softmax::CreateSoftmax());

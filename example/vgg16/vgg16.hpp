@@ -15,18 +15,16 @@ nn::NodePtr ConvBlock(int in_channel, int out_channel) {
 
 nn::Model Vgg11() {
     auto model = nn::Squential::CreateSquential();
-    model->Add(ConvBlock(3, 64));
+    model->Add(ConvBlock(3, 16));
     model->Add(nn::MaxPool::CreateMaxPool(2)); //16 * 16
-    model->Add(ConvBlock(64, 128));
+    model->Add(ConvBlock(16, 32));
     model->Add(nn::MaxPool::CreateMaxPool(2)); //8 * 8
-    model->Add(ConvBlock(128, 256));
-    // model->Add(ConvBlock(256, 256));
+    model->Add(ConvBlock(32, 64));
     model->Add(nn::MaxPool::CreateMaxPool(2)); //4 * 4
-    model->Add(ConvBlock(256, 512));
-    // model->Add(ConvBlock(512, 512));
+    model->Add(ConvBlock(64, 128));
     model->Add(nn::MaxPool::CreateMaxPool(2)); //2 * 2
-    model->Add(ConvBlock(512, 512));
-    model->Add(ConvBlock(512, 512));
+    model->Add(ConvBlock(128, 256));
+    model->Add(ConvBlock(256, 256));
     model->Add(nn::MaxPool::CreateMaxPool(2)); //512 * 1 * 1
     return model;
 }
