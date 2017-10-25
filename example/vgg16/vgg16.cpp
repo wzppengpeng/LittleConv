@@ -18,11 +18,11 @@ void train() {
     std::string input_dir = wzp::Click::get("--input_dir");
     // the parameters
     int batch_size = 256;
-    int epoch_num = 200;
-    float lr = 1e-2;
+    int epoch_num = 100;
+    float lr = 2e-5;
     float momentum = 0.9;
     float weight_decay = 5e-4;
-    int display = 5;
+    int display = 50;
 
     // get model
     auto model = get_model();
@@ -32,7 +32,7 @@ void train() {
     auto cross_entropy_loss = nn::CrossEntropyLoss::CreateCrossEntropyLoss();
 
     // define the optimizer
-    auto optimizer = optim::SGD::CreateSGD(model->RegisterWeights(), lr, momentum, weight_decay);
+    auto optimizer = optim::Adam::CreateAdam(model->RegisterWeights(), lr, momentum, 0.999, weight_decay);
 
     io::Cifar10Dataset cifar10_train(input_dir, io::Cifar10Dataset::TRAIN);
     io::Cifar10Dataset cifar10_test(input_dir, io::Cifar10Dataset::TEST);
