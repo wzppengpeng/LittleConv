@@ -20,9 +20,10 @@ nn::NodePtr ConvBlock(int in_channel, int out_channel, bool use_ave = false) {
 nn::Model Vgg() {
     auto block = nn::Squential::CreateSquential();
     block->Add(ConvBlock(3, 32));
-    block->Add(ConvBlock(32, 32, true));
-    block->Add(ConvBlock(32, 64, true));
-    block->Add(nn::Linear::CreateLinear(4 * 4 * 64, 64));
+    block->Add(ConvBlock(32, 32, false));
+    block->Add(ConvBlock(32, 64, false));
+    block->Add(ConvBlock(64, 64, false));
+    block->Add(nn::Linear::CreateLinear(2 * 2 * 64, 64));
     block->Add(nn::Linear::CreateLinear(64, 10));
     return block;
 }
