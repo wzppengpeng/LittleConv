@@ -115,6 +115,7 @@ Please see the example of lenet-5 or cifar10_quick.
 ### optimization algorithms
 + SGD(with momentum and nesterov)
 + Adam
++ RMSprop
 
 
 ## Todo List
