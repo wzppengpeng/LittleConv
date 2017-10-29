@@ -30,6 +30,7 @@
 // optim part
 #include "licon/optim/sgd.hpp"
 #include "licon/optim/adam.hpp"
+#include "licon/optim/rmsprop.hpp"
 
 // other part
 #include "licon/utils/evaluation.hpp"
