@@ -25,11 +25,12 @@ nn::NodePtr ConvBlock(int in_channel, int out_channel, bool triple = false) {
 
 nn::Model Vgg() {
     auto net = nn::Squential::CreateSquential();
-    net->Add(ConvBlock(3, 64)); //16 * 16
-    net->Add(ConvBlock(64, 128)); //8 * 8
-    net->Add(ConvBlock(128, 256)); // 4 * 4
-    net->Add(ConvBlock(256, 512)); //2 * 2
-    net->Add(ConvBlock(512, 512)); //1 * 1
+    net->Add(ConvBlock(3, 8)); //16 * 16
+    net->Add(ConvBlock(8, 16)); //8 * 8
+    net->Add(ConvBlock(16, 32)); // 4 * 4
+    net->Add(ConvBlock(32, 64)); //2 * 2
+    net->Add(ConvBlock(64, 128)); //1 * 1
+    net->Add(nn::Linear::CreateLinear(128, 10));
     return net;
 }
 
