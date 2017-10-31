@@ -23,6 +23,7 @@ Accuracy::Accuracy(std::unique_ptr<nn::OpNode<F> >& model, io::Dataset<std::vect
     : Evaluation<vector<unsigned char>*, int>(model, eval_dataset) {}
 
 F Accuracy::Run() {
+    m_model->set_phase(Phase::TEST);
     auto find_max_indexs = [](const utils::ETensor<F>& res) {
         vector<int> max_indics(res.num(), 0);
         for(int i = 0; i < res.num(); ++i) {

@@ -18,6 +18,7 @@
 #include "licon/nn/node/softmax.hpp"
 #include "licon/nn/node/dropout.hpp"
 #include "licon/nn/node/conv.hpp"
+#include "licon/nn/node/batch_norm.hpp"
 
 #include "licon/nn/node/cross_entropy_loss.hpp"
 

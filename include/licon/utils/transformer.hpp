@@ -50,7 +50,7 @@ void transform_vector_to_tensor(utils::ETensor<T>& t, const std::vector<U>& v) {
 template<typename T, typename U>
 void transform_tensor_to_vector(const utils::ETensor<T>& t, std::vector<U>& v) {
     v.clear();
-    v.reserve(t.count());
+    v.resize(t.count());
     T* t_ptr = t.ptr();
     for(size_t i = 0; i < t.count(); ++i) {
         v[i] = static_cast<U>(t_ptr[i]);

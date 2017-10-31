@@ -25,11 +25,30 @@ nn::Model get_model() {
     return block;
 }
 
+nn::Model get_bn_model() {
+    auto block = nn::Squential::CreateSquential();
+    block->Add(nn::Conv::CreateConv(1, 20, 5));
+    block->Add(nn::BatchNorm::CreateBatchNorm(20));
+    block->Add(nn::Relu::CreateRelu());
+    block->Add(nn::MaxPool::CreateMaxPool(2)); //12 * 12
+
+    block->Add(nn::Conv::CreateConv(20, 50, 5));
+    block->Add(nn::BatchNorm::CreateBatchNorm(50));
+    block->Add(nn::Relu::CreateRelu());
+    block->Add(nn::MaxPool::CreateMaxPool(2)); //4 * 4
+
+    block->Add(nn::Linear::CreateLinear(4 * 4 * 50, 500));
+    block->Add(nn::Relu::CreateRelu());
+    block->Add(nn::Linear::CreateLinear(500, 10));
+    block->Add(nn::Softmax::CreateSoftmax());
+    return block;
+}
+
 void train() {
     // the parameters
     int batch_size = 256;
     int epoch_num = 10;
-    float lr = 1e-4;
+    float lr = 1e-3;
     int display = 100;
 
     std::string input_dir = wzp::Click::get("--input_dir");

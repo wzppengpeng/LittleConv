@@ -69,6 +69,7 @@ ClassifyTrainerImpl::ClassifyTrainerImpl(std::unique_ptr<nn::OpNode<F> >& model,
 
 
 void ClassifyTrainerImpl::TrainIter(int iter) {
+    m_model->set_phase(Phase::TRAIN);
     io::MnistCifar10Loader loader(&m_train_dataset, true, m_batch_size);
     wzp::Timer t;
     F mean_loss = 0.0, mean_accuracy = 0.0;
