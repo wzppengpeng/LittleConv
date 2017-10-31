@@ -49,9 +49,9 @@ void RMSprop::Update(utils::ETensor<F>& W, const utils::ETensor<F>& W_grad) {
         }
         if(m_momentum > 0.) {
             buf_ptr[i] = buf_ptr[i] * m_momentum + (grad / avg);
-            W_ptr[i] -= buf_ptr[i];
+            W_ptr[i] -= m_lr * buf_ptr[i];
         } else {
-            W_ptr[i] -= (grad / avg);
+            W_ptr[i] -= m_lr * (grad / avg);
         }
     }
 }

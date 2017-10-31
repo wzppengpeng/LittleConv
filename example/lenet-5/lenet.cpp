@@ -30,7 +30,7 @@ void train() {
     int batch_size = 256;
     int epoch_num = 10;
     float lr = 1e-4;
-    int display = 150;
+    int display = 100;
 
     std::string input_dir = wzp::Click::get("--input_dir");
     // get model
@@ -42,7 +42,8 @@ void train() {
     auto cross_entropy_loss = nn::CrossEntropyLoss::CreateCrossEntropyLoss();
 
     // define the optimizer
-    auto optimizer = optim::Adam::CreateAdam(model->RegisterWeights(), lr);
+    // auto optimizer = optim::Adam::CreateAdam(model->RegisterWeights(), lr);
+    auto optimizer = optim::RMSprop::CreateRMSprop(model->RegisterWeights(), lr);
 
     // load data
     io::MnistDataset mnist(input_dir, io::MnistDataset::TRAIN);
