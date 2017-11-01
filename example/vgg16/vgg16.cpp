@@ -19,7 +19,7 @@ void train() {
     // the parameters
     int batch_size = 256;
     int epoch_num = 100;
-    float lr = 1e-2;
+    float lr = 0.1;
     float weight_decay = 5e-4;
 
     int display = 50;
