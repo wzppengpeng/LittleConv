@@ -118,6 +118,10 @@ Please see the example of lenet-5 or cifar10_quick.
 + Adam
 + RMSprop
 
+### optimization adjust method
++ LambdaLR
++ StepLR
+
 
 ## Todo List
 + normalization layers

@@ -31,6 +31,8 @@ namespace optim
 {
 // the decalaration of optimizer
 class Optimizer;
+
+class LRScheduler;
 } //optim
 
 namespace utils
@@ -57,9 +59,11 @@ public:
                                                          int batch_size,
                                                          int epoch,
                                                          int display = 1000,
-                                                         io::Dataset<std::vector<unsigned char>*, int>* validation_dataset = nullptr);
+                                                         io::Dataset<std::vector<unsigned char>*, int>* validation_dataset = nullptr,
+                                                         std::unique_ptr<optim::LRScheduler>* scheduler = nullptr);
 
     virtual void Train() = 0;
+
 
 };
 

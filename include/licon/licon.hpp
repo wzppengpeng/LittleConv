@@ -33,6 +33,9 @@
 #include "licon/optim/adam.hpp"
 #include "licon/optim/rmsprop.hpp"
 
+#include "licon/optim/lambda_lr.hpp"
+#include "licon/optim/step_lr.hpp"
+
 // other part
 #include "licon/utils/evaluation.hpp"
 #include "licon/utils/trainer.hpp"

@@ -38,6 +38,11 @@ public:
     // the update interface
     virtual void Step() = 0;
 
+    // the interface to set and get the lr
+    virtual inline void set_lr(F lr) { m_lr = lr; }
+    virtual inline F get_lr() const { return m_lr; }
+
+
 protected:
     // the members of weights need to update, the first is the weights the second is the grad, the shape should be the same
     std::vector<std::pair<utils::ETensor<F>*, utils::ETensor<F>* > > m_register_weights;

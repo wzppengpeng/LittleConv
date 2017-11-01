@@ -3,6 +3,7 @@
 #include "licon/nn/operation_node.hpp"
 #include "licon/io/dataset.hpp"
 #include "licon/optim/optim.hpp"
+#include "licon/optim/lr_scheduler.hpp"
 
 #include "licon/utils/evaluation.hpp"
 
@@ -33,7 +34,8 @@ public:
                         int batch_size,
                         int epoch,
                         int display,
-                        io::Dataset<std::vector<unsigned char>*, int>* validation_dataset = nullptr);
+                        io::Dataset<std::vector<unsigned char>*, int>* validation_dataset = nullptr,
+                        std::unique_ptr<optim::LRScheduler>* scheduler = nullptr);
 
     void Train();
 
@@ -46,6 +48,7 @@ private:
     int m_epoch;
     int m_display;
     io::Dataset<std::vector<unsigned char>*, int>* m_validation_dataset;
+    std::unique_ptr<optim::LRScheduler>* m_scheduler;
 
 private:
     void TrainIter(int iter);
@@ -61,15 +64,21 @@ ClassifyTrainerImpl::ClassifyTrainerImpl(std::unique_ptr<nn::OpNode<F> >& model,
                         int batch_size,
                         int epoch,
                         int display,
-                        io::Dataset<std::vector<unsigned char>*, int>* validation_dataset)
+                        io::Dataset<std::vector<unsigned char>*, int>* validation_dataset,
+                        std::unique_ptr<optim::LRScheduler>* scheduler)
 
                     : m_model(model), m_loss_node(loss_node), m_optimizer(optimizer), m_train_dataset(train_dataset),
-                    m_batch_size(batch_size), m_epoch(epoch), m_display(display), m_validation_dataset(validation_dataset)
+                    m_batch_size(batch_size), m_epoch(epoch), m_display(display), m_validation_dataset(validation_dataset),
+                    m_scheduler(scheduler)
+
 {}
 
 
 void ClassifyTrainerImpl::TrainIter(int iter) {
     m_model->set_phase(Phase::TRAIN);
+    if(m_scheduler) {
+        (*m_scheduler)->Step();
+    }
     io::MnistCifar10Loader loader(&m_train_dataset, true, m_batch_size);
     wzp::Timer t;
     F mean_loss = 0.0, mean_accuracy = 0.0;
@@ -130,9 +139,10 @@ std::unique_ptr<Trainer> ClassifyTrainer::CreateClassfyTrainer(std::unique_ptr<n
                                                          int batch_size,
                                                          int epoch,
                                                          int display,
-                                                         io::Dataset<std::vector<unsigned char>*, int>* validation_dataset)
+                                                         io::Dataset<std::vector<unsigned char>*, int>* validation_dataset,
+                                                         std::unique_ptr<optim::LRScheduler>* scheduler)
 {
-    return std::unique_ptr<Trainer>(new ClassifyTrainerImpl(model, loss_node, optimizer, train_dataset, batch_size, epoch, display, validation_dataset));
+    return std::unique_ptr<Trainer>(new ClassifyTrainerImpl(model, loss_node, optimizer, train_dataset, batch_size, epoch, display, validation_dataset, scheduler));
 }
 
 } //utils
