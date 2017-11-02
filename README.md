@@ -122,6 +122,9 @@ Please see the example of lenet-5 or cifar10_quick.
 + LambdaLR
 + StepLR
 
+### layer/operation node container
++ Squential
+
 
 ## Todo List
 + normalization layers
