@@ -124,6 +124,8 @@ Please see the example of lenet-5 or cifar10_quick.
 
 ### layer/operation node container
 + Squential
++ Stack
++ EltWiseSum
 
 
 ## Todo List

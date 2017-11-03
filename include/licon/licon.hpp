@@ -24,6 +24,7 @@
 
 // nn's container
 #include "licon/nn/node/neuron_squential.hpp"
+#include "licon/nn/node/elt_wise_sum.hpp"
 
 // nn's init
 #include "licon/nn/init.hpp"

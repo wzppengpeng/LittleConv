@@ -18,7 +18,9 @@ template<typename Dtype>
 class NeuronNode : public OpNode<Dtype> {
 public:
     // construct
-    NeuronNode() : OpNode<Dtype>() {}
+    NeuronNode() : OpNode<Dtype>() {
+        Resize();
+    }
 
     // deconstructor
     virtual ~NeuronNode() {}
