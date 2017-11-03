@@ -70,6 +70,15 @@ public:
         }
     }
 
+    // add the value from a ptr
+    template<typename T>
+    inline static void add(ETensor<Dtype>& tensor, const T* p) {
+        Dtype* ptr = tensor.mutable_ptr();
+        for(size_t i = 0; i < tensor.count(); ++i) {
+            ptr[i] += static_cast<Dtype>(p[i]);
+        }
+    }
+
     // generate a scalar
     template<typename T>
     inline static ETensor<Dtype> generate_scalar(T val) {

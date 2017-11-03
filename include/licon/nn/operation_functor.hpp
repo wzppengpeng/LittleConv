@@ -7,7 +7,7 @@
  */
 #include <cassert>
 
-// #include <memory>
+#include <memory>
 
 #include "licon/common.hpp"
 #include "licon/utils/etensor.hpp"
@@ -30,18 +30,32 @@ public:
         return Forward(bottom);
     }
 
+    virtual inline std::vector<utils::ETensor<Dtype>* > operator() (const std::vector<utils::ETensor<Dtype>* >& bottom, int i) {
+        return ForwardInplace(bottom);
+    }
+
     virtual std::vector<utils::ETensor<Dtype> > Forward(const std::vector<utils::ETensor<Dtype>* >& bottom) = 0;
+    // add the type for if no need to add new datas
+    virtual std::vector<utils::ETensor<Dtype>* > ForwardInplace(const std::vector<utils::ETensor<Dtype>* >& bottom) = 0;
 
     virtual std::vector<utils::ETensor<Dtype> > Backward(const std::vector<utils::ETensor<Dtype>* >& top) = 0;
+    // add the type for if no need to add new datas
+    virtual std::vector<utils::ETensor<Dtype>* > BackwardInplace(const std::vector<utils::ETensor<Dtype>* >& top) = 0;
 
 protected:
-    std::vector<utils::ETensor<Dtype>* >* m_inputs;
+    std::vector<utils::ETensor<Dtype>* > m_inputs;
 
     virtual inline void save_for_backward(const std::vector<utils::ETensor<Dtype>* >& bottom) {
-        m_inputs = &bottom;
+        m_inputs.clear();
+        for(auto in : bottom) {
+            m_inputs.emplace_back(in);
+        }
     }
 
 };
+
+// the opfunctor ptr alias
+typedef std::unique_ptr<OpFunctor<F> > FunctorPtr;
 
 } //nn
 
