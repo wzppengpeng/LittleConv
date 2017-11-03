@@ -39,6 +39,9 @@ public:
      */
     // set the phase
     virtual inline void set_phase(Phase phase) { m_phase = phase; }
+    virtual inline void train() { set_phase(Phase::TRAIN); }
+    virtual inline void test() { set_phase(Phase::TEST); }
+
     // set the former node
     virtual inline void set_former_node(OpNode<Dtype>* former, size_t idx = 0) {
         assert(m_former_nodes.size() > idx);
