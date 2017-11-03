@@ -16,6 +16,8 @@ namespace nn
 class PathFunctor : public OpFunctor<F> {
 
 public:
+    // constructor
+    PathFunctor(size_t path_way_num);
     //the heap constructor
     static nn::FunctorPtr CreatePathFunctor(size_t path_way_num);
     // the not implement functions
@@ -32,8 +34,6 @@ protected:
     size_t m_input_way_num = 1;
 
 private:
-    // constructor
-    PathFunctor(size_t path_way_num);
 
     // some functions
     inline void check_forward(const std::vector<utils::ETensor<F>* >& bottom) {
