@@ -93,8 +93,8 @@ It is also easy to train the model
 ```
 Users only need to define the loss, optimizer and the dataset(mnist or cifar10, other dataset need users to write the dataset reading interface themselves).  
 Then pass them to the trainer and call the `Train` interface.  
-Actually, the process is very simple. Model has the interface `Forward` and `Backward`, users can diy the train and test process themselves.  
-And the all code is in the `licon` namespace.  
+Actually, the process is very simple. Model has the interface `Forward` and `Backward`, users can DIY the train and test process themselves.  
+And the all codes are in the `licon` namespace.  
 Please see the example of lenet-5 or cifar10_quick.
 
 ## Supported networks
