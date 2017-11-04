@@ -13,10 +13,11 @@ nn::Model get_model() {
 void train() {
     std::string input_dir = wzp::Click::get("--input_dir");
     // the parameters
-    int batch_size = 128;
+    int batch_size = 256;
     int epoch_num = 50;
-    float lr = 1e-1;
+    float lr = 1e-2;
     int display = 50;
+    float weight_deacay = 5e-5;
 
     // get model
     auto model = get_model();
@@ -26,8 +27,8 @@ void train() {
     auto cross_entropy_loss = nn::CrossEntropyLoss::CreateCrossEntropyLoss();
 
     // define the optimizer
-    auto optimizer = optim::SGD::CreateSGD(model->RegisterWeights(), lr);
-    auto scheduler = optim::StepLR::CreateStepLR(*optimizer.get(), 2, 0.95);
+    auto optimizer = optim::Adam::CreateAdam(model->RegisterWeights(), lr, 0.9, 0.999, weight_deacay);
+    auto scheduler = optim::StepLR::CreateStepLR(*optimizer.get(), 5, 0.95);
 
     io::Cifar10Dataset cifar10_train(input_dir, io::Cifar10Dataset::TRAIN);
     io::Cifar10Dataset cifar10_test(input_dir, io::Cifar10Dataset::TEST);
