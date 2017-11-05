@@ -28,7 +28,7 @@ void train() {
 
     // define the optimizer
     auto optimizer = optim::Adam::CreateAdam(model->RegisterWeights(), lr, 0.9, 0.999, weight_deacay);
-    auto scheduler = optim::StepLR::CreateStepLR(*optimizer.get(), 5, 0.95);
+    auto scheduler = optim::StepLR::CreateStepLR(*optimizer.get(), 10, 0.1);
 
     io::Cifar10Dataset cifar10_train(input_dir, io::Cifar10Dataset::TRAIN);
     io::Cifar10Dataset cifar10_test(input_dir, io::Cifar10Dataset::TEST);
