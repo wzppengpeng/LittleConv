@@ -126,6 +126,7 @@ Please see the example of lenet-5 or cifar10_quick.
 + Squential
 + Stack
 + EltWiseSum
++ ChannelConcat
 
 
 ## Todo List
