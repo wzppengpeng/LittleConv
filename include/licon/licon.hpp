@@ -10,6 +10,7 @@
 
 // nn part
 #include "licon/nn/node/relu.hpp"
+#include "licon/nn/node/elu.hpp"
 #include "licon/nn/node/sigmoid.hpp"
 #include "licon/nn/node/tanh.hpp"
 #include "licon/nn/node/max_pool.hpp"
@@ -25,6 +26,7 @@
 // nn's container
 #include "licon/nn/node/neuron_squential.hpp"
 #include "licon/nn/node/elt_wise_sum.hpp"
+#include "licon/nn/node/channel_concat.hpp"
 
 // nn's init
 #include "licon/nn/init.hpp"

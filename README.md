@@ -108,6 +108,7 @@ Please see the example of lenet-5 or cifar10_quick.
 + tanh
 + sigmoid
 + relu(leaky relu)
++ ELU
 + batch-normalization
 
 ### loss functions
