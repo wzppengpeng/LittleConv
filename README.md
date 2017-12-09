@@ -109,6 +109,7 @@ Please see the example of lenet-5 or cifar10_quick.
 + sigmoid
 + relu(leaky relu)
 + ELU
++ SELU
 + batch-normalization
 
 ### loss functions
@@ -133,7 +134,7 @@ Please see the example of lenet-5 or cifar10_quick.
 ## Todo List
 + normalization layers
 + split and concat layers
-+ elementwise operation nodes
++ more loss functions
 + more optimization algorithms
 
 

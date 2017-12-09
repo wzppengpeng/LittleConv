@@ -11,6 +11,7 @@
 // nn part
 #include "licon/nn/node/relu.hpp"
 #include "licon/nn/node/elu.hpp"
+#include "licon/nn/node/selu.hpp"
 #include "licon/nn/node/sigmoid.hpp"
 #include "licon/nn/node/tanh.hpp"
 #include "licon/nn/node/max_pool.hpp"
