@@ -110,6 +110,7 @@ Please see the example of lenet-5 or cifar10_quick.
 + relu(leaky relu)
 + ELU
 + SELU
++ Softplus
 + batch-normalization
 
 ### loss functions
