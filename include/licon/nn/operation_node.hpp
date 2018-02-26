@@ -58,6 +58,8 @@ public:
     virtual inline void add_after_node(OpNode<Dtype>* after) { m_after_nodes.emplace_back(after); }
     // set the node name
     virtual void set_node_name(std::string node_name) { m_node_name = std::move(node_name); }
+    // set the network name
+    virtual inline void set_network_name(std::string net_name) { set_node_name(std::move(net_name)); }
 
     /**
      * Getters

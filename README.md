@@ -1,7 +1,7 @@
 # A simple C++11 deep learning framework, easy to use #
 ## Introduce ##
-LittleConv is a simple deep learning framework based on pure c++11, and does not need anything else.
-It is suitable for deep learning on limited computational resource on macos and linux.And it is cpu only.
+LittleConv is a simple deep learning framework based on pure C++11, and does not need anything else.
+It is suitable for deep learning with limited computational resource on macos and linux. And it is cpu only.
 
 ## Advantage ##
 + *Modern C++*
